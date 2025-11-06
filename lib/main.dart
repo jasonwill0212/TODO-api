@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:todo_api/models/user_info.dart';
+import 'package:todo_api/models/get_tasklist.dart';
+import 'package:todo_api/routes/app_route.dart';
+import 'package:todo_api/screens/todo_page_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,7 +36,8 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: HomePage(),
+      initialRoute: AppRoute.todoPageScreen,
+      routes: AppRoute().routes,
     );
   }
 }
@@ -51,10 +54,10 @@ class _HomePageState extends State<HomePage> {
   UserInfo? userInfo;
   Future<void> getUserInfo() async {
     final response = await http.get(
-      Uri.parse('https://dummyjson.com/user/me'),
+      Uri.parse('https://task-manager-api3.p.rapidapi.com/'),
       headers: {
-        'Authorization':
-            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJlbWlseXMiLCJlbWFpbCI6ImVtaWx5LmpvaG5zb25AeC5kdW1teWpzb24uY29tIiwiZmlyc3ROYW1lIjoiRW1pbHkiLCJsYXN0TmFtZSI6IkpvaG5zb24iLCJnZW5kZXIiOiJmZW1hbGUiLCJpbWFnZSI6Imh0dHBzOi8vZHVtbXlqc29uLmNvbS9pY29uL2VtaWx5cy8xMjgiLCJpYXQiOjE3NjIyNjk1MDIsImV4cCI6MTc2MjI3MTMwMn0.WjEAOdc9WeWy6nc9VEUXNSQdC-fs29L-L-FVYMPMJn8',
+        'x-rapidapi-host': 'task-manager-api3.p.rapidapi.com',
+        'x-rapidapi-key': '90cf59e9f8mshc64e8fe3e40f781p14fde8jsne55e29841481',
       },
     );
     if (response.statusCode == 200) {
