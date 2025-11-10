@@ -5,4 +5,5 @@ class AppPath {
   static const String icCompleted = 'assets/icons/ic_completed.svg';
   static const String icPlaylist = 'assets/icons/ic_playlist.svg';
   static const String icTick = 'assets/icons/ic_tick.svg';
+  static const String icPlus = 'assets/icons/ic_plus.svg';
 }

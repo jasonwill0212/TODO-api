@@ -7,6 +7,7 @@ import 'package:todo_api/components/app_path.dart';
 import 'package:todo_api/components/app_text.dart';
 import 'package:todo_api/components/app_text_style.dart';
 import 'package:todo_api/routes/app_route.dart';
+import 'package:todo_api/screens/completed_task_screen.dart';
 
 class TodoPageScreen extends StatefulWidget {
   const TodoPageScreen({super.key});
@@ -17,13 +18,78 @@ class TodoPageScreen extends StatefulWidget {
 
 class _TodoPageScreenState extends State<TodoPageScreen> {
   List<dynamic> taskList = [];
-
   String clean(String? s) {
     if (s == null) return '';
     return s
         .replaceAll(RegExp(r'[\u00A0\u200B\uFEFF]'), '')
         .replaceAll(RegExp(r'\s+'), ' ')
         .trim();
+  }
+
+  Future<void> deleteTask(String taskId) async {
+    final response = await http.delete(
+      Uri.parse('https://task-manager-api3.p.rapidapi.com/$taskId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-rapidapi-host': 'task-manager-api3.p.rapidapi.com',
+        'x-rapidapi-key': '7d744c6ef6msh6295387dee9a9e0p1f763djsndf07a261252a',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      print('deleted successfully');
+      await getTaskList();
+    } else {
+      print('Fail: ${response.statusCode}');
+    }
+  }
+
+  Future<void> addTask(String title, String description) async {
+    final reponse = await http.post(
+      Uri.parse('https://task-manager-api3.p.rapidapi.com/'),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-rapidapi-host': 'task-manager-api3.p.rapidapi.com',
+        'x-rapidapi-key': '7d744c6ef6msh6295387dee9a9e0p1f763djsndf07a261252a',
+      },
+      body: jsonEncode({
+        "title": title,
+        "description": description,
+        "status" : 'pendiente'
+      }),
+    );
+    if (reponse.statusCode == 201){
+      print('success');
+    }
+    else{
+      print('false : ${reponse.statusCode}');
+    }
+  }
+
+  Future<void> completeTask(
+    String taskId,
+    String title,
+    String description,
+    String status,
+  ) async {
+    final response = await http.put(
+      Uri.parse('https://task-manager-api3.p.rapidapi.com/$taskId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-rapidapi-host': 'task-manager-api3.p.rapidapi.com',
+        'x-rapidapi-key': '7d744c6ef6msh6295387dee9a9e0p1f763djsndf07a261252a',
+      },
+      body: jsonEncode({
+        "title": title,
+        "description": description,
+        "status": status,
+      }),
+    );
+    if (response.statusCode == 200) {
+      print('complete success');
+    } else {
+      print('fail: ${response.statusCode}');
+    }
   }
 
   Future<void> getTaskList() async {
@@ -53,6 +119,8 @@ class _TodoPageScreenState extends State<TodoPageScreen> {
     getTaskList();
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,11 +149,15 @@ class _TodoPageScreenState extends State<TodoPageScreen> {
           ],
         ),
       ),
-      body: ListView.builder(
+      body: 
+
+      ListView.builder(
         itemCount: taskList.length,
         itemBuilder: (context, index) {
           final task = taskList[index];
-          if (task['id'] != null) return const SizedBox.shrink();
+          if (task['id'] == null) return const SizedBox.shrink();
+          if (task['status'] == 'completada') return const SizedBox.shrink();
+
           return Container(
             margin: const EdgeInsets.fromLTRB(7, 22, 7, 0),
             width: double.infinity,
@@ -147,9 +219,29 @@ class _TodoPageScreenState extends State<TodoPageScreen> {
                       ),
 
                       SizedBox(width: 26.25),
-                      SvgPicture.asset(AppPath.icTrash),
+                      InkWell(
+                        onTap: () {
+                          setState(() {
+                            deleteTask(task['id']);
+                          });
+                        },
+                        child: SvgPicture.asset(AppPath.icTrash),
+                      ),
                       SizedBox(width: 27.29),
-                      SvgPicture.asset(AppPath.icCompleted),
+                      InkWell(
+                        onTap: () async {
+                          await completeTask(
+                            task['id'],
+                            task['title'],
+                            task['description'],
+                            'completada',
+                          );
+                          await getTaskList();
+                          setState(() {});
+                        },
+                        child: SvgPicture.asset(AppPath.icCompleted),
+                      ),
+
                       SizedBox(width: 30.21),
                     ],
                   ),
@@ -159,10 +251,35 @@ class _TodoPageScreenState extends State<TodoPageScreen> {
           );
         },
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final result = await Navigator.pushNamed(
+            context,
+            AppRoute.addTaskScreen,
+          );
+          if (result != null && result is Map<String, dynamic>) {
+            await addTask(
+              result['title'] ?? '',
+              result['description'] ?? ''
+            );
+            await getTaskList();
+            setState(() {});
+          }
+        },
 
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(55)),
+        backgroundColor: AppColor.pastelPurple,
+        child: Icon(Icons.add, color: AppColor.white),
+      ),
       bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 0,
         backgroundColor: AppColor.white,
-        onTap: (index) {},
+   
+        onTap: (index) {
+          if(index == 1){
+            Navigator.pushNamed(context, AppRoute.completedTaskScreen);
+          }
+        },
         selectedItemColor: AppColor.pastelPurple,
         unselectedItemColor: Colors.grey,
         items: [

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:todo_api/components/app_color.dart';
+import 'package:todo_api/components/app_text.dart';
 import 'package:todo_api/components/app_text_style.dart';
+import 'package:todo_api/routes/app_route.dart';
 
 class EditTaskScreen extends StatefulWidget {
   const EditTaskScreen({super.key});
@@ -59,55 +61,80 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(29),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextFormField(
-              controller: titleController,
-              decoration: InputDecoration(
-                labelText: 'Title',
-                labelStyle: AppTextStyle.tsRegularWarmGray16,
-              ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(29, 43, 29, 43),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(
+                  controller: titleController,
+                  decoration: InputDecoration(
+                    labelText: 'Title',
+                    labelStyle: AppTextStyle.tsRegularWarmGray16,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: descController,
+                  decoration: InputDecoration(
+                    labelText: 'Description',
+                    labelStyle: AppTextStyle.tsRegularWarmGray16,
+                  ),
+                ),
+                const SizedBox(height: 11),
+              ],
             ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: descController,
-              decoration: InputDecoration(
-                labelText: 'Description',
-                labelStyle: AppTextStyle.tsRegularWarmGray16,
-              ),
-            ),
-            const SizedBox(height: 30),
-            Center(
-              child: InkWell(
+          ),
+          Row(
+            children: [
+              SizedBox(width: 14),
+              InkWell(
                 onTap: () {
                   Navigator.pop(context, {
                     'title': titleController.text,
                     'description': descController.text,
                   });
                 },
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(15),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                  alignment: Alignment.center,
+                  width: 170,
+                  height: 65,
                   decoration: BoxDecoration(
                     color: AppColor.pastelPurple,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(15),
                   ),
-                  child: const Text(
-                    'Save Changes',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+                  child: AppText(
+                    text: 'Update',
+                    style: AppTextStyle.tsRegularWhite15,
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
+              SizedBox(width: 32),
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context, AppRoute.todoPageScreen);
+                },
+                child: Container(
+                  alignment: Alignment.center,
+
+                  width: 170,
+                  height: 65,
+                  decoration: BoxDecoration(
+                    color: AppColor.pastelPurple,
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: AppText(
+                    text: 'Cancel',
+                    style: AppTextStyle.tsRegularWhite15,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
