@@ -38,6 +38,14 @@ class AppTextStyle {
     letterSpacing: 0,
   );
 
+    static const TextStyle tsSemiBoldPastelPurple18 = TextStyle(
+    fontFamily: 'Jost',
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+    color: AppColor.pastelPurple,
+    letterSpacing: 0,
+  );
+
     static const TextStyle tsSemiBoldWhite20 = TextStyle(
     fontFamily: 'Jost',
     fontSize: 20,
@@ -45,4 +53,18 @@ class AppTextStyle {
     color: AppColor.white,
     letterSpacing: 0,
   );
+      static const TextStyle tsSemiBoldred20 = TextStyle(
+    fontFamily: 'Jost',
+    fontSize: 20,
+    fontWeight: FontWeight.w600,
+    color: Color.fromARGB(255, 255, 0, 0),
+    letterSpacing: 0,
+    
+  );
+        static const TextStyle tsSemiBoldblack20 = TextStyle(
+    fontFamily: 'Jost',
+    fontSize: 20,
+    fontWeight: FontWeight.w600,
+    color: Color.fromARGB(255, 0, 0, 0),
+    letterSpacing: 0,);
 }

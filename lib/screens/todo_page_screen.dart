@@ -7,7 +7,6 @@ import 'package:todo_api/components/app_path.dart';
 import 'package:todo_api/components/app_text.dart';
 import 'package:todo_api/components/app_text_style.dart';
 import 'package:todo_api/routes/app_route.dart';
-import 'package:todo_api/screens/completed_task_screen.dart';
 
 class TodoPageScreen extends StatefulWidget {
   const TodoPageScreen({super.key});
@@ -27,6 +26,12 @@ class _TodoPageScreenState extends State<TodoPageScreen> {
   }
 
   Future<void> deleteTask(String taskId) async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Center(child: CircularProgressIndicator());
+      },
+    );
     final response = await http.delete(
       Uri.parse('https://task-manager-api3.p.rapidapi.com/$taskId'),
       headers: {
@@ -42,9 +47,16 @@ class _TodoPageScreenState extends State<TodoPageScreen> {
     } else {
       print('Fail: ${response.statusCode}');
     }
+    Navigator.pop(context);
   }
 
   Future<void> addTask(String title, String description) async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Center(child: CircularProgressIndicator());
+      },
+    );
     final reponse = await http.post(
       Uri.parse('https://task-manager-api3.p.rapidapi.com/'),
       headers: {
@@ -55,15 +67,15 @@ class _TodoPageScreenState extends State<TodoPageScreen> {
       body: jsonEncode({
         "title": title,
         "description": description,
-        "status" : 'pendiente'
+        "status": 'pendiente',
       }),
     );
-    if (reponse.statusCode == 201){
+    if (reponse.statusCode == 201) {
       print('success');
-    }
-    else{
+    } else {
       print('false : ${reponse.statusCode}');
     }
+    Navigator.pop(context);
   }
 
   Future<void> completeTask(
@@ -72,6 +84,12 @@ class _TodoPageScreenState extends State<TodoPageScreen> {
     String description,
     String status,
   ) async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Center(child: CircularProgressIndicator());
+      },
+    );
     final response = await http.put(
       Uri.parse('https://task-manager-api3.p.rapidapi.com/$taskId'),
       headers: {
@@ -90,6 +108,7 @@ class _TodoPageScreenState extends State<TodoPageScreen> {
     } else {
       print('fail: ${response.statusCode}');
     }
+    Navigator.pop(context);
   }
 
   Future<void> getTaskList() async {
@@ -119,8 +138,6 @@ class _TodoPageScreenState extends State<TodoPageScreen> {
     getTaskList();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -149,9 +166,7 @@ class _TodoPageScreenState extends State<TodoPageScreen> {
           ],
         ),
       ),
-      body: 
-
-      ListView.builder(
+      body: ListView.builder(
         itemCount: taskList.length,
         itemBuilder: (context, index) {
           final task = taskList[index];
@@ -221,24 +236,95 @@ class _TodoPageScreenState extends State<TodoPageScreen> {
                       SizedBox(width: 26.25),
                       InkWell(
                         onTap: () {
-                          setState(() {
-                            deleteTask(task['id']);
-                          });
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: AppText(
+                                  text: 'Delete Task: ${task['title']}',
+                                  style: AppTextStyle.tsSemiBoldblack20,
+                                ),
+                                actions: <Widget>[
+                                  TextButton(
+                                    style: TextButton.styleFrom(
+                                      textStyle: Theme.of(
+                                        context,
+                                      ).textTheme.labelLarge,
+                                    ),
+                                    child: const Text('Cancel'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                  TextButton(
+                                    style: TextButton.styleFrom(
+                                      textStyle: Theme.of(
+                                        context,
+                                      ).textTheme.labelLarge,
+                                    ),
+                                    child: const Text('Delete'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                      setState(() {
+                                        deleteTask(task['id']);
+                                      });
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
                         },
                         child: SvgPicture.asset(AppPath.icTrash),
                       ),
                       SizedBox(width: 27.29),
                       InkWell(
-                        onTap: () async {
-                          await completeTask(
-                            task['id'],
-                            task['title'],
-                            task['description'],
-                            'completada',
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                backgroundColor: AppColor.lavenderMist,
+                                title: AppText(
+                                  text: 'Complete Task: ${task['title']}',
+                                  style: AppTextStyle.tsSemiBoldblack20,
+                                ),
+                                actions: [
+                                  InkWell(
+                                    onTap: () async {
+                                      Navigator.of(context).pop();
+                                      await completeTask(
+                                        task['id'],
+                                        task['title'],
+                                        task['description'],
+                                        'completada',
+                                      );
+                                      await getTaskList();
+                                      setState(() {});
+                                    },
+          
+                                    child: AppText(
+                                      text: 'Complete',
+                                      style:
+                                          AppTextStyle.tsSemiBoldPastelPurple18,
+                                    ),
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: AppText(
+                                      text: 'Cancel',
+                                      style:
+                                          AppTextStyle.tsSemiBoldPastelPurple18,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
                           );
-                          await getTaskList();
-                          setState(() {});
                         },
+
                         child: SvgPicture.asset(AppPath.icCompleted),
                       ),
 
@@ -258,10 +344,7 @@ class _TodoPageScreenState extends State<TodoPageScreen> {
             AppRoute.addTaskScreen,
           );
           if (result != null && result is Map<String, dynamic>) {
-            await addTask(
-              result['title'] ?? '',
-              result['description'] ?? ''
-            );
+            await addTask(result['title'] ?? '', result['description'] ?? '');
             await getTaskList();
             setState(() {});
           }
@@ -274,9 +357,9 @@ class _TodoPageScreenState extends State<TodoPageScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 0,
         backgroundColor: AppColor.white,
-   
+
         onTap: (index) {
-          if(index == 1){
+          if (index == 1) {
             Navigator.pushNamed(context, AppRoute.completedTaskScreen);
           }
         },

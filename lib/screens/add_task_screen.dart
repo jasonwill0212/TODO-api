@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:todo_api/components/app_color.dart';
 import 'package:todo_api/components/app_text.dart';
 import 'package:todo_api/components/app_text_style.dart';
-import 'package:todo_api/routes/app_route.dart';
 
 class AddTaskScreen extends StatefulWidget {
   const AddTaskScreen({super.key});
