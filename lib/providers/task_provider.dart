@@ -60,6 +60,7 @@ class TaskProvider extends ChangeNotifier {
       debugPrint(
         'Error in TaskProvider.getAllTasks: $e, StackTrace: $stackTrace',
       );
+
       _errorMessage = 'Failed to get all tasks in TaskProvider.getAllTasks: $e';
       notifyListeners();
     } finally {
