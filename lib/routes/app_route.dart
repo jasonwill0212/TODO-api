@@ -1,19 +1,19 @@
 import 'package:flutter/widgets.dart';
-import 'package:todo_api/screens/add_task_screen.dart';
-import 'package:todo_api/screens/completed_task_screen.dart';
-import 'package:todo_api/screens/edit_task_screen.dart';
-import 'package:todo_api/screens/todo_page_screen.dart';
+import 'package:todo_api/screens/completedTaskScreen.dart';
+import 'package:todo_api/screens/create_task_page.dart';
+import 'package:todo_api/screens/edit_task_page.dart';
+import 'package:todo_api/screens/todo_page.dart';
 
 class AppRoute {
-  static const String todoPageScreen = '/todoPageScreen';
-  static const String editTaskScreen = '/editTaskScreen';
-  static const String addTaskScreen = '/addTaskScreen';
-  static const String completedTaskScreen = '/compeleTaskScreen';
+  static const String todoPage = '/todoPage';
+  static const String completedTaskPage = '/completedTaskPage';
+  static const String editTaskPage = '/editTaskPage';
+  static const String createTaskPage = '/createTaskPage';
 
   Map<String, Widget Function(BuildContext)> routes = <String, WidgetBuilder>{
-    AppRoute.todoPageScreen: (context) => const TodoScreen(),
-    AppRoute.editTaskScreen: (context) => const EditTaskScreen(),
-    AppRoute.addTaskScreen: (context) => const AddTaskScreen(),
-    AppRoute.completedTaskScreen: (context) => const CompletedTaskScreen(),
+    AppRoute.todoPage: (context) => const TodoPage(),
+    AppRoute.completedTaskPage: (context) => const Completedtaskscreen(),
+    AppRoute.editTaskPage: (context) => const EditTaskPage(),
+    AppRoute.createTaskPage: (context) => const CreateTaskPage(),
   };
 }

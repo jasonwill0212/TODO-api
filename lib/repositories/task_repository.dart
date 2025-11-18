@@ -22,6 +22,37 @@ class TaskRepository {
   /// Create task
 
   /// Delete task
+  Future<List<Task>> deleteTask(String id) async {
+    try {
+      return await apiService.deleteTask(id);
+    } catch (e, stackTrace) {
+      debugPrint(
+        'Error in TaskRepository.deleteTask: $e, StackTrace: $stackTrace',
+      );
+      throw Exception('Failed to delete task in TaskRepository.deleteTask: $e');
+    }
+  }
 
-  /// Edit task
+  /// Update task
+  Future<List<Task>> updateTask(Task task) async {
+    try {
+      return await apiService.updateTask(task);
+    } catch (e, stackTrace) {
+      debugPrint(
+        'Error in TaskRepository.updateTask: $e, StackTrace: $stackTrace',
+      );
+      throw Exception('Failed to update task in TaskRepository.updateTask: $e');
+    }
+  }
+
+  Future<List<Task>> createTask(Task task) async {
+    try {
+      return await apiService.createTask(task);
+    } catch (e, stackTrace) {
+      debugPrint(
+        'Error in TaskRepository.createTask: $e, StackTrace: $stackTrace',
+      );
+      throw Exception('Failed to create task in TaskRepository.createTask: $e');
+    }
+  }
 }

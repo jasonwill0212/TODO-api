@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:todo_api/components/app_color.dart';
 import 'package:todo_api/components/app_text.dart';
 import 'package:todo_api/components/app_text_style.dart';
+import 'package:todo_api/providers/task_provider.dart';
 
-class AddTaskScreen extends StatefulWidget {
-  const AddTaskScreen({super.key});
+class CreateTaskPage extends StatefulWidget {
+  const CreateTaskPage({super.key});
 
   @override
-  State<AddTaskScreen> createState() => _AddTaskScreenState();
+  State<CreateTaskPage> createState() => _CreateTaskPageState();
 }
 
-class _AddTaskScreenState extends State<AddTaskScreen> {
+class _CreateTaskPageState extends State<CreateTaskPage> {
   late TextEditingController titleController;
   late TextEditingController descController;
 
@@ -68,10 +70,12 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           ),
           InkWell(
             onTap: () {
-              Navigator.pop(context, {
-                'title': titleController.text,
-                'description': descController.text,
-              });
+              context.read<TaskProvider>().createTask(
+                title: titleController.text,
+                description: descController.text,
+                status: 'pendiente',
+              );
+              Navigator.pop(context);
             },
             borderRadius: BorderRadius.circular(15),
             child: Container(
