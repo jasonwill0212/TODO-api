@@ -19,6 +19,8 @@ class ApiService {
   Future<List<Task>> getAllTasks() async {
     try {
       final response = await http.get(Uri.parse(_baseUrl), headers: _headers);
+      debugPrint('Api url: $_baseUrl');
+      debugPrint('Method: GET');
       debugPrint('Response status: ${response.statusCode}');
       debugPrint('Response body: ${response.body}');
       if (response.statusCode == 200) {
@@ -29,7 +31,7 @@ class ApiService {
         final List<dynamic> tasks = responseJson['data'];
         return tasks
             .map((json) => Task.fromJson(json))
-            .where((tasks) => tasks.id != null)
+            .where((tasks) => tasks.id != null && tasks.id!.isNotEmpty)
             .toList();
       } else {
         throw Exception('Failed to load tasks: ${response.statusCode}');
@@ -40,16 +42,18 @@ class ApiService {
     }
   }
 
-  Future<List<Task>> deleteTask(String id) async {
+  Future<void> deleteTask(String id) async {
     try {
       final response = await http.delete(
         Uri.parse('$_baseUrl/$id'),
         headers: _headers,
-        body: json.encode({'id': id}),
+        // body: json.encode({'id': id}),
       );
+      debugPrint('Api url: $_baseUrl/$id');
+      debugPrint('Method: DELETE');
       debugPrint('Response status: ${response.statusCode}');
       if (response.statusCode == 200) {
-        return getAllTasks();
+        debugPrint('Delete Task Success');
       } else {
         throw Exception('Failed to delete task: ${response.statusCode}');
       }
@@ -59,16 +63,18 @@ class ApiService {
     }
   }
 
-  Future<List<Task>> updateTask(Task task) async {
+  Future<void> updateTask(Task task) async {
     try {
       final response = await http.put(
         Uri.parse('$_baseUrl/${task.id}'),
         headers: _headers,
         body: json.encode(task.toJson()),
       );
+      debugPrint('Api url: $_baseUrl/${task.id}');
+      debugPrint('Method: PUT');
       debugPrint('Response status: ${response.statusCode}');
       if (response.statusCode == 200) {
-        return getAllTasks();
+        debugPrint('Update Task Success');
       } else {
         throw Exception('Failed to update task: ${response.statusCode}');
       }
@@ -78,7 +84,7 @@ class ApiService {
     }
   }
 
-  Future<List<Task>> createTask(Task task) async {
+  Future<void> createTask(Task task) async {
     try {
       final response = await http.post(
         Uri.parse(_baseUrl),
@@ -89,10 +95,11 @@ class ApiService {
           "status": task.status,
         }),
       );
+      debugPrint('Api url: $_baseUrl');
+      debugPrint('Method: POST');
       debugPrint('Response status: ${response.statusCode}');
       if (response.statusCode == 201) {
         debugPrint('Task created successfully: ${response.body}');
-        return getAllTasks();
       } else {
         throw Exception('Failed to create task: ${response.statusCode}');
       }

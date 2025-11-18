@@ -88,28 +88,13 @@ class _TodoPageState extends State<TodoPage> {
                 child: Row(
                   children: [
                     SizedBox(width: 19),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AppText(
-                          text: item.title.trim(),
-                          style: AppTextStyle.tsSemiBoldWhite13.copyWith(
-                            height: 1.0,
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        AppText(
-                          text: item.description.trim(),
-                          style: AppTextStyle.tsRegularBlack10,
-                        ),
-                      ],
-                    ),
+                    _buildTitleAndDescWidget(item),
                     const Spacer(),
                     Padding(
                       padding: const EdgeInsets.only(right: 0),
                       child: Row(
                         children: [
+                          /// Edit Task
                           InkWell(
                             onTap: () async {
                               final result = await Navigator.pushNamed(
@@ -120,100 +105,14 @@ class _TodoPageState extends State<TodoPage> {
                             },
                             child: SvgPicture.asset(AppPath.icPencill),
                           ),
-
                           SizedBox(width: 26.25),
-                          InkWell(
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: AppText(
-                                      text: 'Delete Task: ${item.title}',
-                                      style: AppTextStyle.tsSemiBoldblack20,
-                                    ),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        style: TextButton.styleFrom(
-                                          textStyle: Theme.of(
-                                            context,
-                                          ).textTheme.labelLarge,
-                                        ),
-                                        child: const Text('Cancel'),
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                      ),
-                                      TextButton(
-                                        style: TextButton.styleFrom(
-                                          textStyle: Theme.of(
-                                            context,
-                                          ).textTheme.labelLarge,
-                                        ),
-                                        child: const Text('Delete'),
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                          context
-                                              .read<TaskProvider>()
-                                              .deleteTask(item.id!);
-                                        },
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                            child: SvgPicture.asset(AppPath.icTrash),
-                          ),
-                          SizedBox(width: 27.29),
-                          InkWell(
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    backgroundColor: AppColor.lavenderMist,
-                                    title: AppText(
-                                      text: 'Complete Task: ${item.title}',
-                                      style: AppTextStyle.tsSemiBoldblack20,
-                                    ),
-                                    actions: [
-                                      InkWell(
-                                        onTap: () async {
-                                          Navigator.of(context).pop();
-                                          await context
-                                              .read<TaskProvider>()
-                                              .updateTask(
-                                                id: item.id!,
-                                                title: item.title,
-                                                description: item.description,
-                                                status: 'completada',
-                                              );
-                                        },
 
-                                        child: AppText(
-                                          text: 'Complete',
-                                          style: AppTextStyle
-                                              .tsSemiBoldPastelPurple18,
-                                        ),
-                                      ),
-                                      InkWell(
-                                        onTap: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: AppText(
-                                          text: 'Cancel',
-                                          style: AppTextStyle
-                                              .tsSemiBoldPastelPurple18,
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                            child: SvgPicture.asset(AppPath.icCompleted),
-                          ),
+                          /// Delete Task
+                          _buildDeleteTaskWidget(item),
+                          SizedBox(width: 27.29),
+
+                          /// Complete Task
+                          _buildCompleteTaskWidget(item),
                           SizedBox(width: 30.21),
                         ],
                       ),
@@ -231,8 +130,8 @@ class _TodoPageState extends State<TodoPage> {
           Navigator.pushNamed(context, AppRoute.createTaskPage);
         },
         backgroundColor: AppColor.pastelPurple,
-        child: const Icon(Icons.add),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+        child: const Icon(Icons.add),
       ),
 
       bottomNavigationBar: BottomNavigationBar(
@@ -254,6 +153,113 @@ class _TodoPageState extends State<TodoPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Column _buildTitleAndDescWidget(Task item) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AppText(
+          text: item.title.trim(),
+          style: AppTextStyle.tsSemiBoldWhite13.copyWith(height: 1.0),
+        ),
+        const SizedBox(height: 5),
+        AppText(
+          text: item.description.trim(),
+          style: AppTextStyle.tsRegularBlack10,
+        ),
+      ],
+    );
+  }
+
+  InkWell _buildDeleteTaskWidget(Task item) {
+    return InkWell(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: AppText(
+                text: 'Delete Task: ${item.title}',
+                style: AppTextStyle.tsSemiBoldblack20,
+              ),
+              actions: <Widget>[
+                TextButton(
+                  style: TextButton.styleFrom(
+                    textStyle: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  child: const Text('Cancel'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  style: TextButton.styleFrom(
+                    textStyle: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  child: const Text('Delete'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+
+                    /// When using ! in nullable type -> have to make sure
+                    /// that value is not null
+                    /// if the value is null and you still use ! -> it will
+                    /// crash the app
+                    // if ( item.id != null)
+                    context.read<TaskProvider>().deleteTask(item.id!);
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+      child: SvgPicture.asset(AppPath.icTrash),
+    );
+  }
+
+  InkWell _buildCompleteTaskWidget(Task item) {
+    return InkWell(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              backgroundColor: AppColor.lavenderMist,
+              title: AppText(
+                text: 'Complete Task: ${item.title}',
+                style: AppTextStyle.tsSemiBoldblack20,
+              ),
+              actions: [
+                InkWell(
+                  onTap: () async {
+                    Navigator.of(context).pop();
+                    await context.read<TaskProvider>().updateTask(
+                      task: item.copyWith(status: 'completada'),
+                    );
+                  },
+                  child: AppText(
+                    text: 'Complete',
+                    style: AppTextStyle.tsSemiBoldPastelPurple18,
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: AppText(
+                    text: 'Cancel',
+                    style: AppTextStyle.tsSemiBoldPastelPurple18,
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+      child: SvgPicture.asset(AppPath.icCompleted),
     );
   }
 }

@@ -22,9 +22,9 @@ class TaskRepository {
   /// Create task
 
   /// Delete task
-  Future<List<Task>> deleteTask(String id) async {
+  Future<void> deleteTask(String id) async {
     try {
-      return await apiService.deleteTask(id);
+      await apiService.deleteTask(id);
     } catch (e, stackTrace) {
       debugPrint(
         'Error in TaskRepository.deleteTask: $e, StackTrace: $stackTrace',
@@ -34,9 +34,9 @@ class TaskRepository {
   }
 
   /// Update task
-  Future<List<Task>> updateTask(Task task) async {
+  Future<void> updateTask(Task task) async {
     try {
-      return await apiService.updateTask(task);
+      await apiService.updateTask(task);
     } catch (e, stackTrace) {
       debugPrint(
         'Error in TaskRepository.updateTask: $e, StackTrace: $stackTrace',
@@ -45,9 +45,9 @@ class TaskRepository {
     }
   }
 
-  Future<List<Task>> createTask(Task task) async {
+  Future<void> createTask(Task task) async {
     try {
-      return await apiService.createTask(task);
+      await apiService.createTask(task);
     } catch (e, stackTrace) {
       debugPrint(
         'Error in TaskRepository.createTask: $e, StackTrace: $stackTrace',

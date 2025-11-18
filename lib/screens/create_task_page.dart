@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:todo_api/components/app_color.dart';
 import 'package:todo_api/components/app_text.dart';
 import 'package:todo_api/components/app_text_style.dart';
+import 'package:todo_api/models/task.dart';
 import 'package:todo_api/providers/task_provider.dart';
 
 class CreateTaskPage extends StatefulWidget {
@@ -19,8 +20,15 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   @override
   void initState() {
     super.initState();
-    titleController = TextEditingController();
+    titleController = TextEditingController(text: 'Nobita');
     descController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    descController.dispose();
+    super.dispose();
   }
 
   @override
@@ -42,7 +50,6 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
           ),
         ),
       ),
-
       body: Column(
         children: [
           Padding(
@@ -52,6 +59,10 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
               children: [
                 TextFormField(
                   controller: titleController,
+                  onChanged: (value) {
+                    debugPrint('value: $value');
+                    debugPrint('titleController: ${titleController.text}');
+                  },
                   decoration: InputDecoration(
                     labelText: 'Title',
                     labelStyle: AppTextStyle.tsRegularWarmGray16,
@@ -69,13 +80,62 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
             ),
           ),
           InkWell(
-            onTap: () {
-              context.read<TaskProvider>().createTask(
-                title: titleController.text,
-                description: descController.text,
-                status: 'pendiente',
+            onTap: () async {
+              await context.read<TaskProvider>().createTask(
+                task: Task(
+                  title: titleController.text.trim(),
+                  description: descController.text.trim(),
+                ),
               );
-              Navigator.pop(context);
+
+              /// Error case
+
+              if (context.mounted) {
+                if (Provider.of<TaskProvider>(
+                  context,
+                  listen: false,
+                ).errorMessage.isNotEmpty) {
+                  /// show dialog notify error
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        backgroundColor: AppColor.lavenderMist,
+                        title: AppText(
+                          text: 'Error Create Task',
+                          style: AppTextStyle.tsSemiBoldblack20,
+                        ),
+                        content: AppText(
+                          text: context.watch<TaskProvider>().errorMessage,
+                          style: AppTextStyle.tsRegularBlack10,
+                        ),
+                        actions: [
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+
+                              /// clear error message
+                              context.read<TaskProvider>().setErrorMessage('');
+                            },
+                            child: AppText(
+                              text: 'OK',
+                              style: AppTextStyle.tsSemiBoldPastelPurple18,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                } else if (Provider.of<TaskProvider>(
+                  context,
+                  listen: false,
+                ).errorMessage.isEmpty) {
+                  Navigator.pop(context);
+                  await context.read<TaskProvider>().getAllTasks();
+                } else {
+                  debugPrint("Failed to create task in create_task_page.dart");
+                }
+              }
             },
             borderRadius: BorderRadius.circular(15),
             child: Container(
