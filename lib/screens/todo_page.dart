@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:todo_api/components/app_card_container.dart';
 import 'package:todo_api/components/app_color.dart';
 import 'package:todo_api/components/app_path.dart';
 import 'package:todo_api/components/app_text.dart';
@@ -8,6 +9,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:todo_api/models/task.dart';
 import 'package:todo_api/providers/task_provider.dart';
 import 'package:todo_api/routes/app_route.dart';
+import 'package:todo_api/screens/widgets/appbarwidget.dart';
+import 'package:todo_api/screens/widgets/dialogwidget.dart';
 
 class TodoPage extends StatefulWidget {
   const TodoPage({super.key});
@@ -27,135 +30,66 @@ class _TodoPageState extends State<TodoPage> {
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    final screenHeight = screenSize.height;
-    final screenWidth = screenSize.width;
     return Scaffold(
       backgroundColor: AppColor.lavenderMist,
-      appBar: AppBar(
-        backgroundColor: AppColor.pastelPurple,
-        title: Row(
-          children: [
-            AppText(text: 'TODO APP', style: AppTextStyle.tsSemiBoldWhite24),
-            const Spacer(),
-            SvgPicture.asset(AppPath.icCalendar),
-          ],
-        ),
-        centerTitle: false,
-        titleSpacing: 18,
-      ),
-      body: Consumer<TaskProvider>(
-        builder: (context, taskProvider, child) {
-          if (taskProvider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (taskProvider.errorMessage.isNotEmpty) {
-            return Center(
-              child: AppText(
-                text: taskProvider.errorMessage,
-                style: AppTextStyle.tsSemiBoldred20,
-              ),
-            );
-          }
-          if (taskProvider.pendingTasks.isEmpty) {
-            return Center(
-              child: AppText(
-                text: 'No pending tasks available.',
-                style: AppTextStyle.tsSemiBoldred20,
-              ),
-            );
-          }
-          return ListView.builder(
-            itemCount: taskProvider.pendingTasks.length,
-            itemBuilder: (context, index) {
-              var item = taskProvider.pendingTasks[index];
-
-              return Container(
-                margin: const EdgeInsets.fromLTRB(7, 22, 7, 0),
-                width: screenWidth - 14,
-                height: (82 / 896) * screenHeight,
-                decoration: BoxDecoration(
-                  color: AppColor.white,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColor.back.withValues(alpha: 0.25),
-                      offset: const Offset(0, 4),
-                      blurRadius: 4,
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    SizedBox(width: 19),
-                    _buildTitleAndDescWidget(item),
-                    const Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 0),
-                      child: Row(
-                        children: [
-                          /// Edit Task
-                          InkWell(
-                            onTap: () async {
-                              final result = await Navigator.pushNamed(
-                                context,
-                                AppRoute.editTaskPage,
-                                arguments: item,
-                              );
-                            },
-                            child: SvgPicture.asset(AppPath.icPencill),
-                          ),
-                          SizedBox(width: 26.25),
-
-                          /// Delete Task
-                          _buildDeleteTaskWidget(item),
-                          SizedBox(width: 27.29),
-
-                          /// Complete Task
-                          _buildCompleteTaskWidget(item),
-                          SizedBox(width: 30.21),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
-      ),
-
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, AppRoute.createTaskPage);
-        },
-        backgroundColor: AppColor.pastelPurple,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-        child: const Icon(Icons.add),
-      ),
-
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
-        backgroundColor: AppColor.white,
-        onTap: (index) {
-          if (index == 1) {
-            Navigator.pushNamed(context, AppRoute.completedTaskPage);
-          }
-        },
-        items: [
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset(AppPath.icPlaylist),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset(AppPath.icTick),
-            label: 'Completed',
-          ),
-        ],
-      ),
+      appBar: const Appbarwidget(showicon: true, text: 'TODO APP'),
+      body: _bodyTodoPage(),
     );
   }
 
+  //body
+  Consumer _bodyTodoPage() {
+    return Consumer<TaskProvider>(
+      builder: (context, taskProvider, child) {
+        if (taskProvider.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (taskProvider.errorMessage.isNotEmpty) {
+          return Center(
+            child: AppText(
+              text: taskProvider.errorMessage,
+              style: AppTextStyle.tsSemiBoldred20,
+            ),
+          );
+        }
+        if (taskProvider.pendingTasks.isEmpty) {
+          return Center(
+            child: AppText(
+              text: 'No pending tasks available.',
+              style: AppTextStyle.tsSemiBoldred20,
+            ),
+          );
+        }
+        return ListView.builder(
+          itemCount: taskProvider.pendingTasks.length,
+          itemBuilder: (context, index) {
+            var item = taskProvider.pendingTasks[index];
+
+            return AppCardContainer(
+              child: _buttonActionDeleteEditAndComplete(item),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  //buttonDelete_Edit_And_Complete
+  Row _buttonActionDeleteEditAndComplete(Task item) {
+    return Row(
+      children: [
+        SizedBox(width: 19),
+        _buildTitleAndDescWidget(item),
+        const Spacer(),
+        Padding(
+          padding: const EdgeInsets.only(right: 0),
+          child: _editAndDeleteCompleted(item),
+        ),
+      ],
+    );
+  }
+
+  //title and description
   Column _buildTitleAndDescWidget(Task item) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -174,18 +108,35 @@ class _TodoPageState extends State<TodoPage> {
     );
   }
 
+  //editAndDeleteCompleted
+  Row _editAndDeleteCompleted(Task item) {
+    return Row(
+      children: [
+        /// Edit Task
+        _buildEditTaskWidget(item),
+        SizedBox(width: 26.25),
+
+        /// Delete Task
+        _buildDeleteTaskWidget(item),
+        SizedBox(width: 27.29),
+
+        /// Complete Task
+        _buildCompleteTaskWidget(item),
+        SizedBox(width: 30.21),
+      ],
+    );
+  }
+
+  //delete
   InkWell _buildDeleteTaskWidget(Task item) {
     return InkWell(
       onTap: () {
         showDialog(
           context: context,
           builder: (context) {
-            return AlertDialog(
-              title: AppText(
-                text: 'Delete Task: ${item.title}',
-                style: AppTextStyle.tsSemiBoldblack20,
-              ),
-              actions: <Widget>[
+            return DialogWidget(
+              textTittle: 'Delete Task: ${item.title}',
+              actions: [
                 TextButton(
                   style: TextButton.styleFrom(
                     textStyle: Theme.of(context).textTheme.labelLarge,
@@ -202,12 +153,6 @@ class _TodoPageState extends State<TodoPage> {
                   child: const Text('Delete'),
                   onPressed: () {
                     Navigator.of(context).pop();
-
-                    /// When using ! in nullable type -> have to make sure
-                    /// that value is not null
-                    /// if the value is null and you still use ! -> it will
-                    /// crash the app
-                    // if ( item.id != null)
                     context.read<TaskProvider>().deleteTask(item.id!);
                   },
                 ),
@@ -220,18 +165,29 @@ class _TodoPageState extends State<TodoPage> {
     );
   }
 
+  //Edit
+  InkWell _buildEditTaskWidget(Task item) {
+    return InkWell(
+      onTap: () async {
+        await Navigator.pushNamed(
+          context,
+          AppRoute.editTaskPage,
+          arguments: item,
+        );
+      },
+      child: SvgPicture.asset(AppPath.icPencill),
+    );
+  }
+
+  //complete
   InkWell _buildCompleteTaskWidget(Task item) {
     return InkWell(
       onTap: () {
         showDialog(
           context: context,
           builder: (context) {
-            return AlertDialog(
-              backgroundColor: AppColor.lavenderMist,
-              title: AppText(
-                text: 'Complete Task: ${item.title}',
-                style: AppTextStyle.tsSemiBoldblack20,
-              ),
+            return DialogWidget(
+              textTittle: 'Complete Task: ${item.title}',
               actions: [
                 InkWell(
                   onTap: () async {

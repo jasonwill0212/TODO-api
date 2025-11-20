@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:todo_api/components/app_color.dart';
-import 'package:todo_api/components/app_text.dart';
-import 'package:todo_api/components/app_text_style.dart';
+import 'package:todo_api/components/app_button.dart';
+import 'package:todo_api/components/app_textformfield.dart';
 import 'package:todo_api/models/task.dart';
 import 'package:todo_api/providers/task_provider.dart';
 import 'package:todo_api/routes/app_route.dart';
+import 'package:todo_api/screens/widgets/appbarWidget.dart';
+import 'package:todo_api/screens/widgets/dialogWidget.dart';
 
 class EditTaskPage extends StatefulWidget {
   const EditTaskPage({super.key});
@@ -15,9 +16,12 @@ class EditTaskPage extends StatefulWidget {
 }
 
 class _EditTaskPageState extends State<EditTaskPage> {
+  final _formKey = GlobalKey<FormState>(); // ✅ đặt đúng vị trí
+
   late TextEditingController titleController;
   late TextEditingController descController;
   late Task task;
+
   @override
   void initState() {
     super.initState();
@@ -45,100 +49,86 @@ class _EditTaskPageState extends State<EditTaskPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<TaskProvider>(
-      builder: (context, taskProvider, child) {
-        return Scaffold(
-          appBar: AppBar(
-            backgroundColor: AppColor.pastelPurple,
-            title: const Padding(
-              padding: EdgeInsets.only(left: 18),
-              child: Text(
-                'Edit Task',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-          body: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(29, 43, 29, 43),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextFormField(
-                      controller: titleController,
-                      decoration: InputDecoration(
-                        labelText: 'Title',
-                        labelStyle: AppTextStyle.tsRegularWarmGray16,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    TextFormField(
-                      controller: descController,
-                      decoration: InputDecoration(
-                        labelText: 'Description',
-                        labelStyle: AppTextStyle.tsRegularWarmGray16,
-                      ),
-                    ),
-                    const SizedBox(height: 11),
-                  ],
-                ),
-              ),
-              Row(
-                children: [
-                  SizedBox(width: 14),
-                  InkWell(
-                    onTap: () {
-                      Navigator.pop(context, {
-                        'title': titleController.text,
-                        'description': descController.text,
-                      });
-                    },
-                    borderRadius: BorderRadius.circular(15),
-                    child: Container(
-                      alignment: Alignment.center,
-                      width: 170,
-                      height: 65,
-                      decoration: BoxDecoration(
-                        color: AppColor.pastelPurple,
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: AppText(
-                        text: 'Update',
-                        style: AppTextStyle.tsRegularWhite15,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 32),
-                  InkWell(
-                    onTap: () {
-                      Navigator.pop(context, AppRoute.todoPage);
-                    },
-                    child: Container(
-                      alignment: Alignment.center,
+    return Scaffold(
+      appBar: Appbarwidget(showicon: false, text: 'Edit Task'),
+      body: _body(),
+    );
+  }
 
-                      width: 170,
-                      height: 65,
-                      decoration: BoxDecoration(
-                        color: AppColor.pastelPurple,
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: AppText(
-                        text: 'Cancel',
-                        style: AppTextStyle.tsRegularWhite15,
-                      ),
-                    ),
-                  ),
-                ],
+  Widget _body() {
+    return Form(
+      key: _formKey, // Assign the GlobalKey to the Form
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(29, 43, 29, 43),
+        child: Column(
+          children: [_formFields(), const SizedBox(height: 40), _buttons()],
+        ),
+      ),
+    );
+  }
+
+  //title and description texformfield
+  Widget _formFields() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AppTextformfield(
+          labelText: 'Title',
+          controllerText: titleController,
+          validatorText: 'Title Empty',
+        ),
+        const SizedBox(height: 20),
+        AppTextformfield(
+          labelText: 'Description',
+          controllerText: descController,
+          validatorText: 'Description Empty',
+        ),
+      ],
+    );
+  }
+
+  Widget _buttons() {
+    final taskProvider = context.read<TaskProvider>();
+
+    return Row(
+      children: [
+        const SizedBox(width: 6),
+        InkWell(
+          onTap: () async {
+            /// Validate
+            if (!_formKey.currentState!.validate()) return;
+
+            /// Update API
+            await taskProvider.updateTask(
+              task: Task(
+                title: titleController.text.trim(),
+                description: descController.text.trim(),
+                id: task.id,
               ),
-            ],
-          ),
-        );
-      },
+            );
+
+            if (!mounted) return;
+
+            if (taskProvider.errorMessage.isNotEmpty) {
+              showDialog(
+                context: context,
+                builder: (context) =>
+                    const DialogWidget(textTittle: 'Error Edit Task'),
+              );
+            } else {
+              Navigator.pop(context);
+            }
+          },
+          child: const AppButton(text: "Update", height: 65, width: 170),
+        ),
+        const SizedBox(width: 20),
+        InkWell(
+          onTap: () {
+            Navigator.pop(context, AppRoute.todoPage);
+          },
+          child: const AppButton(text: 'Cancel', height: 65, width: 170),
+        ),
+      ],
     );
   }
 }

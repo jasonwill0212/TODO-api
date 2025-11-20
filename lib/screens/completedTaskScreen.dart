@@ -1,79 +1,85 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:todo_api/components/app_color.dart';
+import 'package:todo_api/components/app_button_icon.dart';
+import 'package:todo_api/components/app_card_container.dart';
+import 'package:todo_api/components/app_path.dart';
 import 'package:todo_api/components/app_text.dart';
 import 'package:todo_api/components/app_text_style.dart';
+import 'package:todo_api/models/task.dart';
 import 'package:todo_api/providers/task_provider.dart';
+import 'package:todo_api/screens/widgets/appbarWidget.dart';
+import 'package:todo_api/screens/widgets/dialogWidget.dart';
 
 class Completedtaskscreen extends StatelessWidget {
   const Completedtaskscreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    final screenHeight = screenSize.height;
-    final screenWidth = screenSize.width;
     return Consumer<TaskProvider>(
       builder: (context, taskProvider, child) {
         return Scaffold(
-          appBar: AppBar(
-            backgroundColor: AppColor.pastelPurple,
-            centerTitle: false,
-            titleSpacing: 0,
-            title: Padding(
-              padding: EdgeInsets.only(left: 18),
-              child: AppText(
-                text: 'Completed Task',
-                style: AppTextStyle.tsSemiBoldWhite24,
-              ),
-            ),
-          ),
+          appBar: Appbarwidget(showicon: false, text: 'Completed Task'),
           body: ListView.builder(
             itemCount: taskProvider.completedTasks.length,
             itemBuilder: (context, index) {
               final item = taskProvider.completedTasks[index];
-              return Container(
-                margin: const EdgeInsets.fromLTRB(7, 22, 7, 0),
-                width: screenWidth - 14,
-                height: (82 / 896) * screenHeight,
-                decoration: BoxDecoration(
-                  color: AppColor.white,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColor.back.withValues(alpha: 0.25),
-                      offset: const Offset(0, 4),
-                      blurRadius: 4,
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    SizedBox(width: 19),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AppText(
-                          text: item.title.trim(),
-                          style: AppTextStyle.tsSemiBoldWhite13.copyWith(
-                            height: 1.0,
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        AppText(
-                          text: item.description.trim(),
-                          style: AppTextStyle.tsRegularBlack10,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
+              return _bodyListaskCompleted(item, context);
             },
           ),
         );
       },
     );
   }
+}
+
+//ListaskCompleted
+AppCardContainer _bodyListaskCompleted(Task item, BuildContext context) {
+  return AppCardContainer(
+    child: Row(
+      children: [
+        SizedBox(width: 19),
+        Row(children: [_titleAndDescription(item)]),
+        Spacer(),
+        Padding(
+          padding: EdgeInsets.only(right: 20),
+
+          child: AppButtonIcon(
+            onTap: () async {
+              await context.read<TaskProvider>().updateTask(
+                task: item.copyWith(status: 'pendiente'),
+              );
+              if (context.mounted) {
+                if (Provider.of<TaskProvider>(
+                  context,
+                  listen: false,
+                ).errorMessage.isNotEmpty) {
+                  DialogWidget(textTittle: 'Fail');
+                }
+              }
+            },
+            iconpath: AppPath.icRestore,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+//titleAndDescription
+Column _titleAndDescription(Task item) {
+  return Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      AppText(
+        text: item.title.trim(),
+        style: AppTextStyle.tsSemiBoldWhite13.copyWith(height: 1.0),
+      ),
+      const SizedBox(height: 5),
+      AppText(
+        text: item.description.trim(),
+        style: AppTextStyle.tsRegularBlack10,
+      ),
+    ],
+  );
 }
