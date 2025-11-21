@@ -17,81 +17,98 @@ class TaskProvider extends ChangeNotifier {
   List<Task> get completedTasks =>
       _tasks.where((task) => task.isCompleted).toList();
 
+  /// initialize repository
+  Future<void> init() async {
+    await taskRepository.init();
+    await getAllTasks();
+  }
+
   Future<void> getAllTasks() async {
     try {
-      _isLoading = true;
-      notifyListeners();
+      _setLoading(true);
       _tasks = await taskRepository.getAllTasks();
       notifyListeners();
     } catch (e, stackTrace) {
       debugPrint(
         'Error in TaskProvider.getAllTasks: $e, StackTrace: $stackTrace',
       );
-      _errorMessage = 'Failed to load tasks';
-      notifyListeners();
+      setErrorMessage('Failed to load tasks');
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _setLoading(false);
     }
   }
 
   Future<void> deleteTask(String id) async {
     try {
-      _isLoading = true;
-      notifyListeners();
+      _setLoading(true);
       await taskRepository.deleteTask(id);
-      await getAllTasks();
+      _tasks.removeWhere((task) => task.id == id);
       notifyListeners();
     } catch (e, stackTrace) {
       debugPrint(
         'Error in TaskProvider.deleteTask: $e, StackTrace: $stackTrace',
       );
-      _errorMessage = 'Failed to delete task';
-      notifyListeners();
+      setErrorMessage('Failed to delete task');
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _setLoading(false);
     }
   }
 
   Future<void> updateTask({required Task task}) async {
     try {
-      _isLoading = true;
+      _setLoading(true);
       notifyListeners();
       await taskRepository.updateTask(task);
-      await getAllTasks();
+      final index = _tasks.indexWhere((element) => element.id == task.id);
+      if (index != -1) {
+        _tasks[index] = task;
+        notifyListeners();
+        debugPrint('Task updated in provider: ${task.id} - ${task.title}');
+      }
     } catch (e, stackTrace) {
       debugPrint(
         'Error in TaskProvider.updateTask: $e, StackTrace: $stackTrace',
       );
-      _errorMessage = 'Failed to update task';
-      notifyListeners();
+      setErrorMessage('Failed to update task');
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _setLoading(false);
     }
   }
 
   Future<void> createTask({required Task task}) async {
     try {
-      _isLoading = true;
-      notifyListeners();
-      await taskRepository.createTask(task);
+      _setLoading(true);
+      final newTaskId = await taskRepository.createTask(task);
+
+      /// get new list after creating task
+      final newTask = Task(
+        id: newTaskId,
+        title: task.title,
+        description: task.description,
+        status: task.status,
+      );
+      _tasks.add(newTask);
       notifyListeners();
     } catch (e, stackTrace) {
       debugPrint(
         'Error in TaskProvider.createTask: $e, StackTrace: $stackTrace',
       );
-      _errorMessage = 'Failed to create task';
-      notifyListeners();
+      setErrorMessage('Failed to create task');
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _setLoading(false);
     }
   }
 
   void setErrorMessage(String errorMessage) {
     _errorMessage = errorMessage;
     notifyListeners();
+  }
+
+  void _setLoading(bool isLoading) {
+    if (_isLoading != isLoading) {
+      _isLoading = isLoading;
+      debugPrint('Loading state changed: $_isLoading');
+      notifyListeners();
+    }
   }
 }

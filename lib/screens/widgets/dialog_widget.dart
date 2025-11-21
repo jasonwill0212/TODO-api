@@ -16,8 +16,7 @@ class DialogWidget extends StatelessWidget {
       backgroundColor: AppColor.lavenderMist,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       elevation: 8,
-      shadowColor: Colors.black.withOpacity(0.2),
-
+      shadowColor: Colors.black.withValues(alpha: 0.2),
       title: Padding(
         padding: const EdgeInsets.only(bottom: 8),
         child: AppText(text: textTittle, style: AppTextStyle.tsSemiBoldblack20),
@@ -30,7 +29,6 @@ class DialogWidget extends StatelessWidget {
           style: AppTextStyle.tsSemiBoldred20,
         ),
       ),
-
       actions:
           actions ??
           [

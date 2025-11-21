@@ -7,8 +7,8 @@ import 'package:todo_api/components/app_text.dart';
 import 'package:todo_api/components/app_text_style.dart';
 import 'package:todo_api/models/task.dart';
 import 'package:todo_api/providers/task_provider.dart';
-import 'package:todo_api/screens/widgets/appbarWidget.dart';
-import 'package:todo_api/screens/widgets/dialogWidget.dart';
+import 'package:todo_api/screens/widgets/appbar_widget.dart';
+import 'package:todo_api/screens/widgets/dialog_widget.dart';
 
 class Completedtaskscreen extends StatelessWidget {
   const Completedtaskscreen({super.key});
@@ -18,7 +18,7 @@ class Completedtaskscreen extends StatelessWidget {
     return Consumer<TaskProvider>(
       builder: (context, taskProvider, child) {
         return Scaffold(
-          appBar: Appbarwidget(showicon: false, text: 'Completed Task'),
+          appBar: AppbarWidget(showicon: false, text: 'Completed Task'),
           body: ListView.builder(
             itemCount: taskProvider.completedTasks.length,
             itemBuilder: (context, index) {
@@ -45,6 +45,9 @@ AppCardContainer _bodyListaskCompleted(Task item, BuildContext context) {
 
           child: AppButtonIcon(
             onTap: () async {
+              /// TODO: Implement confirm dialog before restoring task
+              /// Implement loading while updating task
+              /// Handle errors properly
               await context.read<TaskProvider>().updateTask(
                 task: item.copyWith(status: 'pendiente'),
               );

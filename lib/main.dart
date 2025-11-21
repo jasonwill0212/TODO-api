@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:provider/provider.dart';
-import 'package:todo_api/models/task_hive.dart';
+import 'package:todo_api/models/task.dart';
 import 'package:todo_api/providers/task_provider.dart';
 import 'package:todo_api/routes/app_route.dart';
 
 void main() async {
-  await Hive.initFlutter(); // Initialize Hive for Flutter
-  Hive.registerAdapter(TaskHiveAdapter());
-  await Hive.openBox<TaskHive>('taskBox');
+  // Initialize Hive for Flutter
+  await Hive.initFlutter();
+
+  /// Register Hive adapters
+  Hive.registerAdapter(TaskAdapter());
+
   runApp(const MyApp());
 }
 

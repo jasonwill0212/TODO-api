@@ -4,8 +4,8 @@ import 'package:todo_api/components/app_button.dart';
 import 'package:todo_api/components/app_textformfield.dart';
 import 'package:todo_api/models/task.dart';
 import 'package:todo_api/providers/task_provider.dart';
-import 'package:todo_api/screens/widgets/appbarWidget.dart';
-import 'package:todo_api/screens/widgets/dialogwidget.dart';
+import 'package:todo_api/screens/widgets/appbar_widget.dart';
+import 'package:todo_api/screens/widgets/dialog_widget.dart';
 
 class CreateTaskPage extends StatefulWidget {
   const CreateTaskPage({super.key});
@@ -36,7 +36,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: Appbarwidget(showicon: false, text: 'Create Task'),
+      appBar: AppbarWidget(showicon: false, text: 'Create Task'),
       body: _body(),
     );
   }
@@ -103,9 +103,12 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
 
         /// --- Success ---
         Navigator.pop(context);
-        taskProvider.getAllTasks();
       },
-      child: const AppButton(text: 'ADD', height: 65, width: 380),
+      child: AppButton(
+        text: 'ADD',
+        height: 65,
+        width: MediaQuery.of(context).size.width - 58,
+      ),
     );
   }
 }

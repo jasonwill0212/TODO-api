@@ -9,8 +9,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:todo_api/models/task.dart';
 import 'package:todo_api/providers/task_provider.dart';
 import 'package:todo_api/routes/app_route.dart';
-import 'package:todo_api/screens/widgets/appbarwidget.dart';
-import 'package:todo_api/screens/widgets/dialogwidget.dart';
+import 'package:todo_api/screens/widgets/appbar_widget.dart';
+import 'package:todo_api/screens/widgets/dialog_widget.dart';
 
 class TodoPage extends StatefulWidget {
   const TodoPage({super.key});
@@ -23,7 +23,7 @@ class _TodoPageState extends State<TodoPage> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TaskProvider>().getAllTasks();
+      context.read<TaskProvider>().init();
     });
     super.initState();
   }
@@ -32,7 +32,7 @@ class _TodoPageState extends State<TodoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.lavenderMist,
-      appBar: const Appbarwidget(showicon: true, text: 'TODO APP'),
+      appBar: const AppbarWidget(showicon: true, text: 'TODO APP'),
       body: _bodyTodoPage(),
     );
   }
@@ -80,31 +80,31 @@ class _TodoPageState extends State<TodoPage> {
       children: [
         SizedBox(width: 19),
         _buildTitleAndDescWidget(item),
-        const Spacer(),
-        Padding(
-          padding: const EdgeInsets.only(right: 0),
-          child: _editAndDeleteCompleted(item),
-        ),
+        SizedBox(width: 12),
+        _editAndDeleteCompleted(item),
       ],
     );
   }
 
   //title and description
-  Column _buildTitleAndDescWidget(Task item) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AppText(
-          text: item.title.trim(),
-          style: AppTextStyle.tsSemiBoldWhite13.copyWith(height: 1.0),
-        ),
-        const SizedBox(height: 5),
-        AppText(
-          text: item.description.trim(),
-          style: AppTextStyle.tsRegularBlack10,
-        ),
-      ],
+  Expanded _buildTitleAndDescWidget(Task item) {
+    return Expanded(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppText(
+            text: item.title.trim(),
+            textAlign: TextAlign.start,
+            style: AppTextStyle.tsSemiBoldWhite13.copyWith(height: 1.0),
+          ),
+          const SizedBox(height: 5),
+          AppText(
+            text: item.description.trim(),
+            style: AppTextStyle.tsRegularBlack10,
+          ),
+        ],
+      ),
     );
   }
 
@@ -114,15 +114,15 @@ class _TodoPageState extends State<TodoPage> {
       children: [
         /// Edit Task
         _buildEditTaskWidget(item),
-        SizedBox(width: 26.25),
+        SizedBox(width: 20),
 
         /// Delete Task
         _buildDeleteTaskWidget(item),
-        SizedBox(width: 27.29),
+        SizedBox(width: 20),
 
         /// Complete Task
         _buildCompleteTaskWidget(item),
-        SizedBox(width: 30.21),
+        SizedBox(width: 25),
       ],
     );
   }

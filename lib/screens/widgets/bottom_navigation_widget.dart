@@ -4,19 +4,19 @@ import 'package:todo_api/components/app_color.dart';
 import 'package:todo_api/components/app_path.dart';
 import 'package:todo_api/components/app_text.dart';
 import 'package:todo_api/routes/app_route.dart';
-import 'package:todo_api/screens/completedTaskScreen.dart';
+import 'package:todo_api/screens/completed_task_screen.dart';
 import 'package:todo_api/screens/todo_page.dart';
 
-class Bottomnavigation extends StatefulWidget {
-  const Bottomnavigation({super.key});
+class BottomNavigationWidget extends StatefulWidget {
+  const BottomNavigationWidget({super.key});
 
   @override
-  State<Bottomnavigation> createState() => _BottomnavigationState();
+  State<BottomNavigationWidget> createState() => _BottomNavigationWidgetState();
 }
 
 int currentIndex = 0;
 
-class _BottomnavigationState extends State<Bottomnavigation> {
+class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
   void _onItemTapped(int index) {
     setState(() {
       currentIndex = index;

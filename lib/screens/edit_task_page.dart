@@ -5,8 +5,8 @@ import 'package:todo_api/components/app_textformfield.dart';
 import 'package:todo_api/models/task.dart';
 import 'package:todo_api/providers/task_provider.dart';
 import 'package:todo_api/routes/app_route.dart';
-import 'package:todo_api/screens/widgets/appbarWidget.dart';
-import 'package:todo_api/screens/widgets/dialogWidget.dart';
+import 'package:todo_api/screens/widgets/appbar_widget.dart';
+import 'package:todo_api/screens/widgets/dialog_widget.dart';
 
 class EditTaskPage extends StatefulWidget {
   const EditTaskPage({super.key});
@@ -50,7 +50,7 @@ class _EditTaskPageState extends State<EditTaskPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: Appbarwidget(showicon: false, text: 'Edit Task'),
+      appBar: AppbarWidget(showicon: false, text: 'Edit Task'),
       body: _body(),
     );
   }
@@ -89,10 +89,11 @@ class _EditTaskPageState extends State<EditTaskPage> {
 
   Widget _buttons() {
     final taskProvider = context.read<TaskProvider>();
+    final buttonWidth = (MediaQuery.of(context).size.width - (28 + 46)) / 2;
 
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const SizedBox(width: 6),
         InkWell(
           onTap: () async {
             /// Validate
@@ -119,14 +120,13 @@ class _EditTaskPageState extends State<EditTaskPage> {
               Navigator.pop(context);
             }
           },
-          child: const AppButton(text: "Update", height: 65, width: 170),
+          child: AppButton(text: "Update", height: 65, width: buttonWidth),
         ),
-        const SizedBox(width: 20),
         InkWell(
           onTap: () {
             Navigator.pop(context, AppRoute.todoPage);
           },
-          child: const AppButton(text: 'Cancel', height: 65, width: 170),
+          child: AppButton(text: 'Cancel', height: 65, width: buttonWidth),
         ),
       ],
     );

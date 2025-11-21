@@ -84,7 +84,7 @@ class ApiService {
     }
   }
 
-  Future<void> createTask(Task task) async {
+  Future<String> createTask(Task task) async {
     try {
       final response = await http.post(
         Uri.parse(_baseUrl),
@@ -100,6 +100,9 @@ class ApiService {
       debugPrint('Response status: ${response.statusCode}');
       if (response.statusCode == 201) {
         debugPrint('Task created successfully: ${response.body}');
+        final responseJson = json.decode(response.body);
+        final String newTaskId = responseJson['data']['id'];
+        return newTaskId;
       } else {
         throw Exception('Failed to create task: ${response.statusCode}');
       }

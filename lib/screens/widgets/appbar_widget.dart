@@ -5,10 +5,10 @@ import 'package:todo_api/components/app_path.dart';
 import 'package:todo_api/components/app_text.dart';
 import 'package:todo_api/components/app_text_style.dart';
 
-class Appbarwidget extends StatelessWidget implements PreferredSizeWidget {
+class AppbarWidget extends StatelessWidget implements PreferredSizeWidget {
   final bool showicon;
   final String text;
-  const Appbarwidget({super.key, required this.showicon, required this.text});
+  const AppbarWidget({super.key, required this.showicon, required this.text});
 
   @override
   Widget build(BuildContext context) {
