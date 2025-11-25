@@ -38,11 +38,9 @@ AppCardContainer _bodyListaskCompleted(Task item, BuildContext context) {
     child: Row(
       children: [
         SizedBox(width: 19),
-        Row(children: [_titleAndDescription(item)]),
-        Spacer(),
+        Expanded(child: _titleAndDescription(item)),
         Padding(
           padding: EdgeInsets.only(right: 20),
-
           child: AppButtonIcon(
             onTap: () async {
               /// TODO: Implement confirm dialog before restoring task
@@ -76,6 +74,7 @@ Column _titleAndDescription(Task item) {
     children: [
       AppText(
         text: item.title.trim(),
+        maxLines: 1,
         style: AppTextStyle.tsSemiBoldWhite13.copyWith(height: 1.0),
       ),
       const SizedBox(height: 5),

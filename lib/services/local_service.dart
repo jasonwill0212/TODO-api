@@ -44,12 +44,31 @@ class LocalService {
   }
 
   /// DeleteTask by id from local Hive box
+  Future<void> deleteTask(String id) async {
+    await _taskBox.delete(id);
+    debugPrint('Deleted task with id $id from local storage.');
+  }
 
-  /// /// Add - Save task to sync queue
+  /// Add - Save task to sync queue
+  Future<String> saveTask(Task task) async {
+    final key = task.id ?? DateTime.now().millisecondsSinceEpoch.toString();
+    await _taskBox.put(key, task.copyWith(id: key));
+    debugPrint('Saved task with id $key to local storage.');
+    return key;
+  }
 
   //// Update Task
+  Future<void> updateTask(Task task) async {
+    if (task.id == null) return;
+    await _taskBox.put(task.id, task);
+    debugPrint('Updated task with id ${task.id} in local storage.');
+  }
 
   /// Clear All Tasks
+  Future<void> clearAllTasks() async {
+    await _taskBox.clear();
+    debugPrint('Cleared all tasks from local storage.');
+  }
 
   /// Sync queue operations
   /// Map contains 'task' and 'operation' and 'timestamp'
@@ -57,4 +76,51 @@ class LocalService {
   /// task -> data of Task need to save
   /// timestamp -> time of operation
   /// 1 -> 2 -> 3 -> 4 -> 5 -> 6 ... ( queue order need to sync to server )
+  Future<void> addToSyncQueueBox({
+    required String operation,
+    required Map<String, dynamic> data,
+  }) async {
+    final key = DateTime.now().millisecondsSinceEpoch.toString();
+
+    /// Queue item map data
+    final queueItem = {
+      'operation': operation,
+      'data': data,
+      'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
+    };
+
+    /// Save data to sync queue
+    await _syncQueueBox.put(key, queueItem);
+    debugPrint('Added task with id $key to sync queue for $operation.');
+  }
+
+  /// Remove from sync queue
+  /// Remove task from _syncQueueBox by time stamp
+  Future<void> removeFromSyncQueueBox(String timestamp) async {
+    /// Find the item with the matching timestamp
+    final listMatchingItems = _syncQueueBox.keys.where((dynamic key) {
+      final item = _syncQueueBox.get(key);
+      return item != null && item['timestamp'] == timestamp;
+    }).toList();
+
+    /// Remove all matching items
+    for (final key in listMatchingItems) {
+      await _syncQueueBox.delete(key);
+      debugPrint('Removed task with key $key from sync queue.');
+    }
+  }
+
+  /// Get Sync Queue Items
+  /// Return list of maps from sync queue box -> check if there is any item need to sync
+  Future<List<Map<String, dynamic>>> getSyncQueueItems() async {
+    /// item represents each item value in the sync queue box
+    /// .map to convert each item to Map<String, dynamic>
+    return _syncQueueBox.values.map<Map<String, dynamic>>((item) {
+      final map = <String, dynamic>{};
+      (item).forEach((key, value) {
+        map[key.toString()] = value;
+      });
+      return map;
+    }).toList();
+  }
 }
